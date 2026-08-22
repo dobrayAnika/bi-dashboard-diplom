@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPI Дашборд | Аналитика</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.5);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Анимированный фон */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .dashboard-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Хедер */
+        .dashboard-header {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .title-section h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .title-section p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+            transform: translateY(-3px);
+        }
+
+        /* AI секция */
+        .ai-section {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            display: none;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
+            animation: slideDown 0.4s ease;
+        }
+
+        .ai-section.visible {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .ai-content {
+            flex: 1;
+        }
+
+        .ai-content h4 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-content p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Сетка метрик */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card-dashboard {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .metric-card-dashboard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+        }
+
+        .metric-card-dashboard:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary);
+        }
+
+        .metric-header-dash {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .metric-header-dash > div:last-child {
+            min-width: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .metric-icon-dash {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .metric-title-dash {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .metric-value-dash {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f1f5f9, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .metric-trend {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        /* Секции с графиками и таблицами */
+        .visualization-section {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .chart-block h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chart-container {
+            width: 100%;
+            min-height: 450px;
+        }
+
+        .table-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            max-height: 550px;
+        }
+
+        .table-header {
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .table-header h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .table-header p {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .table-scroll {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .table-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .table-scroll::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+            border-radius: 3px;
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead th {
+            background: var(--bg-dark);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .data-table tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .growth-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .growth-badge.positive {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .growth-badge.negative {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .growth-badge.neutral {
+            background: rgba(148, 163, 184, 0.15);
+            color: var(--text-secondary);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .formula-note {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .formula-note code {
+            background: rgba(245, 158, 11, 0.2);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            color: var(--warning);
+        }
+
+        /* Пустое состояние */
+        .empty-state {
+            text-align: center;
+            padding: 100px 20px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            opacity: 0.5;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1200px) {
+            .visualization-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Анимации */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .metric-card-dashboard {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .metric-card-dashboard:nth-child(1) { animation-delay: 0.1s; }
+        .metric-card-dashboard:nth-child(2) { animation-delay: 0.2s; }
+        .metric-card-dashboard:nth-child(3) { animation-delay: 0.3s; }
+        .metric-card-dashboard:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="dashboard-container">
+        <!-- Хедер -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <div class="logo-wrapper">
+                    <div class="logo-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="title-section">
+                        <h1>KPI Дашборд</h1>
+                        <p>Аналитика в реальном времени</p>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/bi_tool" class="btn btn-secondary">
+                    <i class="fas fa-tools"></i>
+                    BI Конструктор
+                </a>
+                <button onclick="askAI()" class="btn btn-primary" id="ai-btn">
+                    <i class="fas fa-robot"></i>
+                    AI Анализ
+                </button>
+            </div>
+        </header>
+
+        <!-- AI Анализ -->
+        <div id="ai-result" class="ai-section">
+            <div class="ai-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div class="ai-content">
+                <h4>
+                    <i class="fas fa-star"></i>
+                    ИИ Аналитика
+                </h4>
+                <p id="ai-text"></p>
+            </div>
+        </div>
+
+        {% set has_metrics = metric_results and metric_results|length > 0 %}
+        {% set has_visuals = revenue_bar_chart or revenue_table_data or new_customers_bar_chart or new_customers_table_data %}
+        {% set has_any_content = has_metrics or has_visuals %}
+
+        {% if has_metrics %}
+        <!-- Карточки метрик -->
+        <div class="metrics-grid">
+            {% for metric in metric_results %}
+            <div class="metric-card-dashboard">
+                <div class="metric-header-dash">
+                    <div class="metric-icon-dash">
+                        {{ metric.icon }}
+                    </div>
+                    <div>
+                        <div class="metric-title-dash">{{ metric.title }}</div>
+                        <div class="metric-value-dash">{{ metric.value }}</div>
+                    </div>
+                </div>
+                <div class="metric-trend">
+                    <span>Обновлено сейчас</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Визуализации -->
+        {% if revenue_bar_chart or revenue_table_data %}
+        <div class="visualization-section">
+            {% if revenue_bar_chart %}
+            <div class="chart-block">
+                <h2>
+                    <i class="fas fa-chart-bar" style="color: var(--primary);"></i>
+                    Выручка по месяцам
+                </h2>
+                <div id="revenue-bar-chart" class="chart-container"></div>
+            </div>
+            {% endif %}
+
+            {% if revenue_table_data %}
+            <div class="table-block">
+                <div class="table-header">
+                    <h3>Темп роста выручки</h3>
+                    <p>Revenue Growth Rate по месяцам</p>
+                </div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Месяц</th>
+                                <th>Выручка</th>
+                                <th>Рост</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in revenue_table_data %}
+                            <tr>
+                                <td><strong>{{ row.month }}</strong></td>
+                                <td>{{ row.revenue }}</td>
+                                <td>
+                                    <span class="growth-badge {{ row.growth_class }}">
+                                        {{ row.growth }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="formula-note">
+                    <i class="fas fa-calculator" style="margin-right: 8px;"></i>
+                    <strong>Формула:</strong>
+                    <code>(Тек. − Пред.) / Пред. × 100%</code>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if new_customers_bar_chart or new_customers_table_data %}
+        <div class="visualization-section">
+            {% if new_customers_bar_chart %}
+            <div class="chart-block">
+                <h2>
+                    <i class="fas fa-users" style="color: var(--success);"></i>
+                    Новые клиенты в месяц
+                </h2>
+                <div id="new-customers-bar-chart" class="chart-container"></div>
+            </div>
+            {% endif %}
+
+            {% if new_customers_table_data %}
+            <div class="table-block">
+                <div class="table-header">
+                    <h3>Рост новых клиентов</h3>
+                    <p>Динамика притока клиентов</p>
+                </div>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Месяц</th>
+                                <th>Клиенты</th>
+                                <th>Рост</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in new_customers_table_data %}
+                            <tr>
+                                <td><strong>{{ row.month }}</strong></td>
+                                <td>{{ row.count }}</td>
+                                <td>
+                                    <span class="growth-badge {{ row.growth_class }}">
+                                        {{ row.growth }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="formula-note">
+                    <i class="fas fa-calculator" style="margin-right: 8px;"></i>
+                    <strong>Формула:</strong>
+                    <code>(Клиенты тек. − Клиенты пред.) / Клиенты пред. × 100%</code>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if not has_any_content %}
+        <div class="empty-state">
+            <i class="fas fa-chart-line"></i>
+            {% if no_data %}
+            <h2>Данные не загружены</h2>
+            <p>Перейдите в <a href="/bi_tool" style="color: var(--primary);">BI Конструктор</a> и загрузите файл CSV или Excel с данными о продажах.</p>
+            {% else %}
+            <h2>Добро пожаловать в KPI Дашборд</h2>
+            <p>Настройте метрики в <a href="/bi_tool" style="color: var(--primary);">BI Конструкторе</a>, чтобы начать анализ данных.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Рендер графиков
+        {% if revenue_bar_chart %}
+        (function() {
+            var chartData = {{ revenue_bar_chart | safe }};
+            var layout = {
+                ...chartData.layout,
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#f1f5f9' },
+                xaxis: {
+                    ...chartData.layout.xaxis,
+                    gridcolor: '#334155',
+                    linecolor: '#334155'
+                },
+                yaxis: {
+                    ...chartData.layout.yaxis,
+                    gridcolor: '#334155',
+                    linecolor: '#334155'
+                }
+            };
+            Plotly.newPlot('revenue-bar-chart', chartData.data, layout, {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                displaylogo: false
+            });
+        })();
+        {% endif %}
+
+        {% if new_customers_bar_chart %}
+        (function() {
+            var ncData = {{ new_customers_bar_chart | safe }};
+            var layout = {
+                ...ncData.layout,
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: '#f1f5f9' },
+                xaxis: {
+                    ...ncData.layout.xaxis,
+                    gridcolor: '#334155',
+                    linecolor: '#334155'
+                },
+                yaxis: {
+                    ...ncData.layout.yaxis,
+                    gridcolor: '#334155',
+                    linecolor: '#334155'
+                }
+            };
+            Plotly.newPlot('new-customers-bar-chart', ncData.data, layout, {
+                responsive: true,
+                displayModeBar: true,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                displaylogo: false
+            });
+        })();
+        {% endif %}
+
+        // Авторазмер шрифта в карточках метрик
+        function fitMetricValues() {
+            document.querySelectorAll('.metric-value-dash').forEach(el => {
+                el.style.fontSize = '42px';
+                let size = 42;
+                const parentWidth = el.parentElement.clientWidth;
+                while (el.scrollWidth > parentWidth && size > 16) {
+                    size -= 1;
+                    el.style.fontSize = size + 'px';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', fitMetricValues);
+        window.addEventListener('resize', () => {
+            clearTimeout(window._fitTimer);
+            window._fitTimer = setTimeout(fitMetricValues, 150);
+        });
+
+        // AI анализ
+        async function askAI() {
+            const resBox = document.getElementById('ai-result');
+            const txtBox = document.getElementById('ai-text');
+            const btn = document.getElementById('ai-btn');
+
+            resBox.classList.add('visible');
+            txtBox.innerHTML = '<span class="loading-spinner"></span>Анализирую данные...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/analyze_ai', { method: 'POST' });
+                const data = await response.json();
+                txtBox.innerHTML = data.status === 'success' ? data.answer : "Ошибка анализа данных.";
+            } catch (e) {
+                txtBox.innerHTML = "Ошибка соединения с сервером.";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

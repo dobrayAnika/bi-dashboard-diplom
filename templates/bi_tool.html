@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI Конструктор | Метрики</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-sidebar: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Анимированный градиентный фон */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Навигация */
+        .navbar {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px 32px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-sidebar);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        /* База данных секция */
+        .database-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .db-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .db-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .db-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .db-details h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .db-details p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .upload-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .file-input-label {
+            padding: 12px 24px;
+            background: var(--bg-sidebar);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Основная сетка */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+        }
+
+        /* Левая панель - поля */
+        .fields-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            position: sticky;
+            top: 24px;
+            height: fit-content;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .fields-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .fields-panel::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+            border-radius: 3px;
+        }
+
+        .fields-panel::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-header i {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .panel-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .field-item {
+            padding: 14px 16px;
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: grab;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .field-item::before {
+            content: '⋮⋮';
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-right: 8px;
+        }
+
+        .field-item:hover {
+            background: var(--border-color);
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .field-item:active {
+            cursor: grabbing;
+        }
+
+        /* Правая панель - метрики */
+        .metrics-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .metrics-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .metrics-header h3 {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Аккордеон метрик */
+        .metric-accordion {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .metric-header {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .metric-header:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .metric-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .metric-icon.gmv { background: var(--gradient-1); }
+        .metric-icon.orders { background: var(--gradient-2); }
+        .metric-icon.aov { background: var(--gradient-3); }
+        .metric-icon.arpc { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .metric-icon.unique_customers { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .metric-icon.monthly_revenue { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .metric-icon.revenue_growth { background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); }
+        .metric-icon.new_customers_monthly { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+
+        .metric-info {
+            flex: 1;
+        }
+
+        .metric-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .metric-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .metric-toggle {
+            color: var(--text-secondary);
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card.expanded .metric-toggle {
+            transform: rotate(180deg);
+        }
+
+        .metric-content {
+            padding: 0 20px 20px 20px;
+            display: none;
+        }
+
+        .metric-card.expanded .metric-content {
+            display: block;
+        }
+
+        /* Поля для drag & drop */
+        .field-mapping {
+            margin-bottom: 20px;
+        }
+
+        .field-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .drop-zone {
+            background: var(--bg-dark);
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            transform: scale(1.02);
+        }
+
+        .drop-zone.has-value {
+            border-style: solid;
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .drop-zone-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .dropped-field {
+            background: var(--gradient-1);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropped-field i {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .clear-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .drop-zone.has-value .clear-btn {
+            opacity: 1;
+        }
+
+        .clear-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .placeholder-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .derived-box {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .derived-box i {
+            color: var(--warning);
+            font-size: 20px;
+        }
+
+        .derived-box span {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .metric-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-calculate {
+            flex: 1;
+            padding: 12px;
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .save-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--success);
+            font-size: 12px;
+            margin-top: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .save-indicator.visible {
+            opacity: 1;
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fields-panel {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .db-header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .upload-form {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Flash-сообщения */
+        .flash-container {
+            padding: 0 24px;
+            margin-top: 16px;
+        }
+
+        .flash-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flash-message.error {
+            background: #450a0a;
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+        }
+
+        .flash-message.warning {
+            background: #431407;
+            border: 1px solid #f59e0b;
+            color: #fcd34d;
+        }
+
+        .flash-message.success {
+            background: #052e16;
+            border: 1px solid #10b981;
+            color: #6ee7b7;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Навигация -->
+        <nav class="navbar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h1>BI Конструктор</h1>
+            </div>
+            <div class="nav-actions">
+                <a href="/" class="btn btn-secondary">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Дашборд
+                </a>
+            </div>
+        </nav>
+
+        <!-- Flash-сообщения -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                <i class="fas {% if category == 'error' %}fa-circle-xmark{% elif category == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Секция базы данных -->
+        <div class="database-section">
+            {% if db_name %}
+            <div id="db-status-area" class="db-header">
+                <div class="db-info">
+                    <div class="db-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="db-details">
+                        <h3>Активная база данных</h3>
+                        <p>{{ db_name }}</p>
+                    </div>
+                </div>
+                <button class="btn btn-warning" onclick="showUploadForm()">
+                    <i class="fas fa-upload"></i>
+                    Загрузить новую
+                </button>
+            </div>
+            {% endif %}
+
+            <form id="upload-form" method="post" enctype="multipart/form-data"
+                  style="display: {{ 'none' if db_name else 'flex' }}; gap: 16px; align-items: center;">
+                <div class="file-input-wrapper">
+                    <input type="file" name="file" id="file-input" required>
+                    <label for="file-input" class="file-input-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Выберите файл
+                    </label>
+                </div>
+                <span id="file-name-display" style="
+                    color: var(--text-secondary);
+                    font-size: 14px;
+                    padding: 8px 12px;
+                    background: var(--bg-sidebar);
+                    border: 1px solid var(--border-color);
+                    border-radius: 10px;
+                    max-width: 220px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    display: none;
+                    align-self: center;
+                ">
+                </span>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i>
+                    Загрузить
+                </button>
+                {% if db_name %}
+                <button type="button" class="btn btn-secondary" onclick="hideUploadForm()">
+                    <i class="fas fa-times"></i>
+                    Отмена
+                </button>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if columns %}
+        <!-- Основная сетка -->
+        <div class="main-grid">
+            <!-- Левая панель с полями -->
+            <div class="fields-panel">
+                <div class="panel-header">
+                    <i class="fas fa-cubes"></i>
+                    <h3>Доступные поля</h3>
+                </div>
+                <div class="fields-container">
+                    {% for col in columns %}
+                    <div class="field-item" draggable="true" onDragStart="onDragStart(event)">
+                        {{ col }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Правая панель с метриками -->
+            <div class="metrics-panel">
+                <div class="metrics-header">
+                    <h3>
+                        <i class="fas fa-cog"></i>
+                        Настройка метрик
+                    </h3>
+                </div>
+
+                <div class="metric-accordion">
+                    {% set filtered_metrics = {
+                        'gmv': metrics_library['gmv'],
+                        'order_count': metrics_library['order_count'],
+                        'aov': metrics_library['aov'],
+                        'unique_customers': metrics_library['unique_customers'],
+                        'arpc': metrics_library['arpc'],
+                        'monthly_revenue': metrics_library['monthly_revenue'],
+                        'revenue_growth': metrics_library['revenue_growth'],
+                        'new_customers_monthly': metrics_library['new_customers_monthly']
+                    } %}
+
+                    {% for key, m in filtered_metrics.items() %}
+                    <div class="metric-card" data-metric="{{ key }}">
+                        <div class="metric-header" onclick="toggleMetric(this)">
+                            <div class="metric-icon {{ 'orders' if key == 'order_count' else key }}">
+                                {% if key == 'gmv' %}💰
+                                {% elif key == 'order_count' %}📦
+                                {% elif key == 'aov' %}🛒
+                                {% elif key == 'arpc' %}💵
+                                {% elif key == 'unique_customers' %}👥
+                                {% elif key == 'monthly_revenue' %}📊
+                                {% elif key == 'revenue_growth' %}📈
+                                {% elif key == 'new_customers_monthly' %}✨
+                                {% endif %}
+                            </div>
+                            <div class="metric-info">
+                                <h4>{{ m.title }}</h4>
+                                <p>{{ m.desc }}</p>
+                            </div>
+                            <div class="metric-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+
+                        <div class="metric-content">
+                            {% for req_item in m.req %}
+                            <div class="field-mapping">
+                                <label class="field-label">{{ req_item.name }}:</label>
+                                {% if req_item.type == 'base' %}
+                                {% set saved_val = saved_mapping.get(key, {}).get('fields', {}).get(req_item.name, '') %}
+                                <div class="drop-zone {{ 'has-value' if saved_val else '' }}"
+                                     data-kpi="{{ key }}"
+                                     data-req="{{ req_item.name }}"
+                                     onDragOver="onDragOver(event)"
+                                     onDragLeave="onDragLeave(event)"
+                                     onDrop="onDrop(event)">
+                                    <div class="drop-zone-content">
+                                        {% if saved_val %}
+                                        <div class="dropped-field">
+                                            <i class="fas fa-link"></i>
+                                            {{ saved_val }}
+                                        </div>
+                                        <button class="clear-btn"
+                                                onclick="clearField(this, '{{ key }}', '{{ req_item.name }}')"
+                                                title="Очистить поле">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        {% else %}
+                                        <div class="placeholder-text">
+                                            <i class="fas fa-mouse-pointer"></i>
+                                            Перетащите поле сюда
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="derived-box">
+                                    <i class="fas fa-calculator"></i>
+                                    <span>Автоматически из <strong>{{ req_item.source }}</strong></span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+
+                            <div class="metric-actions">
+                                <button class="btn-calculate" onclick="showResult('{{ key }}')">
+                                    <i class="fas fa-play"></i>
+                                    Рассчитать
+                                </button>
+                            </div>
+
+                            <div class="save-indicator" id="save-indicator-{{ key }}">
+                                <i class="fas fa-check-circle"></i>
+                                Сохранено
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleMetric(header) {
+            const card = header.closest('.metric-card');
+            card.classList.toggle('expanded');
+        }
+
+        function showUploadForm() {
+            document.getElementById('db-status-area').style.display = 'none';
+            document.getElementById('upload-form').style.display = 'flex';
+        }
+
+        function hideUploadForm() {
+            document.getElementById('db-status-area').style.display = 'flex';
+            document.getElementById('upload-form').style.display = 'none';
+        }
+
+        function onDragStart(e) {
+            e.dataTransfer.setData("text", e.target.innerText.trim());
+        }
+
+        function onDragOver(e) {
+            e.preventDefault();
+            const zone = e.target.closest('.drop-zone');
+            if (zone) zone.classList.add('drag-over');
+        }
+
+        function onDragLeave(e) {
+            const zone = e.target.closest('.drop-zone');
+            if (zone) zone.classList.remove('drag-over');
+        }
+
+        function onDrop(e) {
+            e.preventDefault();
+            const zone = e.target.closest('.drop-zone');
+            if (!zone) return;
+
+            zone.classList.remove('drag-over');
+            const fieldName = e.dataTransfer.getData("text");
+            const kpiName = zone.dataset.kpi;
+            const reqName = zone.dataset.req;
+
+            zone.innerHTML = `
+                <div class="drop-zone-content">
+                    <div class="dropped-field">
+                        <i class="fas fa-link"></i>
+                        ${fieldName}
+                    </div>
+                    <button class="clear-btn" onclick="clearField(this, '${kpiName}', '${reqName}')" title="Очистить поле">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+            zone.classList.add('has-value');
+            zone.dataset.mapped = fieldName;
+            saveMapping(kpiName);
+        }
+
+        async function clearField(btn, kpiName, reqName) {
+            const zone = btn.closest('.drop-zone');
+            zone.innerHTML = `
+                <div class="drop-zone-content">
+                    <div class="placeholder-text">
+                        <i class="fas fa-mouse-pointer"></i>
+                        Перетащите поле сюда
+                    </div>
+                </div>
+            `;
+            zone.classList.remove('has-value');
+            zone.dataset.mapped = '';
+
+            try {
+                const response = await fetch('/clear_field', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        kpi_name: kpiName,
+                        field_name: reqName
+                    })
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showNotification('Поле очищено', 'success');
+                    saveMapping(kpiName);
+                } else {
+                    showNotification('Ошибка при очистке', 'error');
+                }
+            } catch (e) {
+                showNotification('Ошибка сервера', 'error');
+            }
+        }
+
+        async function saveMapping(kpiKey) {
+            const container = document.querySelector(`[data-metric="${kpiKey}"]`);
+            const zones = container.querySelectorAll('.drop-zone');
+            let mapping = {};
+
+            zones.forEach(z => {
+                const mappedField = z.querySelector('.dropped-field');
+                if (mappedField) {
+                    const fieldText = mappedField.textContent.trim();
+                    mapping[z.dataset.req] = fieldText;
+                }
+            });
+
+            const res = await fetch('/save_config', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    kpi_name: kpiKey,
+                    fields: mapping
+                })
+            });
+
+            if (res.ok) {
+                const indicator = document.getElementById(`save-indicator-${kpiKey}`);
+                if (indicator) {
+                    indicator.classList.add('visible');
+                    setTimeout(() => {
+                        indicator.classList.remove('visible');
+                    }, 2000);
+                }
+            }
+
+            return res;
+        }
+
+        function showResult(kpiKey) {
+            saveMapping(kpiKey).then(() => {
+                window.location.href = `/?show_metric=${kpiKey}`;
+            });
+        }
+
+        function showNotification(message, type) {
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Открываем первую метрику по умолчанию
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('file-input');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    const display = document.getElementById('file-name-display');
+                    if (this.files && this.files.length > 0) {
+                        display.textContent = this.files[0].name;
+                        display.style.display = 'inline-block';
+                    } else {
+                        display.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

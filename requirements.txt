@@ -1,0 +1,10 @@
+Flask==3.1.2
+SQLAlchemy==2.0.46
+pandas==2.3.3
+numpy==2.4.1
+plotly==6.5.2
+python-dotenv==1.2.1
+gigachat==0.2.0
+psycopg2-binary==2.9.11
+openpyxl
+Werkzeug==3.1.5

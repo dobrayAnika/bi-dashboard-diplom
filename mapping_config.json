@@ -1,0 +1,52 @@
+{
+    "gmv": {
+        "fields": {
+            "Цена товара": "sales",
+            "Количество": "quantity"
+        }
+    },
+    "order_count": {
+        "fields": {
+            "ID заказа": "order_id"
+        }
+    },
+    "aov": {
+        "fields": {
+            "Цена товара": "sales",
+            "Количество": "quantity",
+            "ID заказа": "order_id"
+        }
+    },
+    "unique_customers": {
+        "fields": {
+            "Клиент": "customer_name"
+        }
+    },
+    "arpc": {
+        "fields": {
+            "Цена товара": "sales",
+            "Количество": "quantity",
+            "Клиент": "customer_name"
+        }
+    },
+    "monthly_revenue": {
+        "fields": {
+            "Цена товара": "sales",
+            "Количество": "quantity",
+            "Дата заказа": "order_date"
+        }
+    },
+    "revenue_growth": {
+        "fields": {
+            "Цена товара": "sales",
+            "Количество": "quantity",
+            "Дата заказа": "order_date"
+        }
+    },
+    "new_customers_monthly": {
+        "fields": {
+            "Клиент": "customer_name",
+            "Дата заказа": "order_date"
+        }
+    }
+}
